@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1030</width>
+    <height>580</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>CASPER</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">font: 11pt &quot;Sans Serif&quot;;</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="5" column="3">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="4" column="1">
+     <widget class="QPushButton" name="Go_Back_Button">
+      <property name="text">
+       <string>Return</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="2" column="1">
+     <widget class="QCheckBox" name="select_all_checkbox">
+      <property name="text">
+       <string>Select All</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1" colspan="3">
+     <layout class="QGridLayout" name="gridLayout_10">
+      <item row="0" column="0" rowspan="2" alignment="Qt::AlignBottom">
+       <widget class="QLabel" name="label_8">
+        <property name="styleSheet">
+         <string notr="true">font: 28pt &quot;Sans Serif&quot;;
+</string>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;CASPER&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label_7">
+        <property name="styleSheet">
+         <string notr="true">font: 12pt &quot;Sans Serif&quot;;</string>
+        </property>
+        <property name="text">
+         <string>V 1.1 CRISPR Associated Software for Pathway Engineering and Research</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" rowspan="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="1" colspan="3">
+     <widget class="QTableWidget" name="tableWidget">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>317</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>800</width>
+        <height>16777215</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <spacer name="verticalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="4" column="4">
+     <spacer name="horizontalSpacer_3">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="4" column="3">
+     <widget class="QPushButton" name="Submit_button">
+      <property name="text">
+       <string>Submit</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1030</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionOpen_Recent"/>
+    <addaction name="actionSave"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="separator"/>
+    <addaction name="actionCut_Rev_Com"/>
+    <addaction name="actionCopy_Rev_Com"/>
+    <addaction name="actionPaste_Rev_Com"/>
+   </widget>
+   <widget class="QMenu" name="menuGenome">
+    <property name="title">
+     <string>Genome</string>
+    </property>
+    <addaction name="actionUpload_New_Genome"/>
+    <addaction name="actionUpload_New_Endonuclease"/>
+    <addaction name="actionChange_Directory"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <widget class="QMenu" name="menuExport_to">
+     <property name="title">
+      <string>Export to...</string>
+     </property>
+     <addaction name="actionExcel_csv"/>
+     <addaction name="actionIDT_Order"/>
+    </widget>
+    <addaction name="actionMultitargeting"/>
+    <addaction name="actionPopulation_Analysis"/>
+    <addaction name="actionComplete_Target_Analysis"/>
+    <addaction name="separator"/>
+    <addaction name="menuExport_to"/>
+    <addaction name="actionNCBI_BLAST"/>
+   </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionNew_CASPER_Window"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuGenome"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuWindow"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionOpen_Recent">
+   <property name="text">
+    <string>Open Recent...</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+  </action>
+  <action name="actionCut_Rev_Com">
+   <property name="text">
+    <string>Cut Rev-Com</string>
+   </property>
+  </action>
+  <action name="actionCopy_Rev_Com">
+   <property name="text">
+    <string>Copy Rev-Com</string>
+   </property>
+  </action>
+  <action name="actionPaste_Rev_Com">
+   <property name="text">
+    <string>Paste Rev-Com</string>
+   </property>
+  </action>
+  <action name="actionUpload_New_Genome">
+   <property name="text">
+    <string>Seq_Finder Analysis...</string>
+   </property>
+  </action>
+  <action name="actionUpload_New_Endonuclease">
+   <property name="text">
+    <string>Upload New Endonuclease...</string>
+   </property>
+  </action>
+  <action name="actionChange_Directory">
+   <property name="text">
+    <string>Change Directory</string>
+   </property>
+  </action>
+  <action name="actionNCBI_BLAST">
+   <property name="text">
+    <string>NCBI BLAST</string>
+   </property>
+  </action>
+  <action name="actionExcel_csv">
+   <property name="text">
+    <string>Excel (.csv)</string>
+   </property>
+  </action>
+  <action name="actionIDT_Order">
+   <property name="text">
+    <string>IDT Order</string>
+   </property>
+  </action>
+  <action name="actionMultitargeting">
+   <property name="text">
+    <string>Multitargeting</string>
+   </property>
+  </action>
+  <action name="actionPopulation_Analysis">
+   <property name="text">
+    <string>Population Analysis</string>
+   </property>
+  </action>
+  <action name="actionComplete_Target_Analysis">
+   <property name="text">
+    <string>Complete Target Analysis</string>
+   </property>
+  </action>
+  <action name="actionNew_CASPER_Window">
+   <property name="text">
+    <string>New CASPER Window</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
