@@ -23,7 +23,7 @@ from generateLib import genLibrary
 from Algorithms import SeqTranslate
 from CSPRparser import CSPRparser
 import populationAnalysis
-
+import platform
 
 # =========================================================================================
 # CLASS NAME: AnnotationsWindow
@@ -34,8 +34,8 @@ import populationAnalysis
 class AnnotationsWindow(QtWidgets.QMainWindow):
     def __init__(self, info_path):
         super(AnnotationsWindow, self).__init__()
-        uic.loadUi(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'Annotation Details.ui'), self)
-        self.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "cas9image.png")))
+        uic.loadUi(GlobalSettings.appdir + 'Annotation Details.ui', self)
+        self.setWindowIcon(QtGui.QIcon(GlobalSettings.appdir + "cas9image.png"))
         self.Submit_button.clicked.connect(self.submit)
         self.Go_Back_Button.clicked.connect(self.go_Back)
         self.select_all_checkbox.stateChanged.connect(self.select_all_genes)
@@ -225,7 +225,7 @@ class CMainWindow(QtWidgets.QMainWindow):
     def __init__(self, info_path):
 
         super(CMainWindow, self).__init__()
-        uic.loadUi(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'CASPER_main.ui'), self)
+        uic.loadUi(GlobalSettings.appdir + 'CASPER_main.ui', self)
         self.dbpath = ""
         self.info_path = info_path
         self.data = {}  # each org genome name and the endonucleases along with it
@@ -260,7 +260,10 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.Step3.setStyleSheet(groupbox_style.replace("Step1", "Step3").replace("rgb(111,181,110)", "rgb(53,121,93)"))
 
         # --- Button Modifications --- #
-        self.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "cas9image.png")))
+
+
+        #self.setWindowIcon(QtGui.QIcon(GlobalSettings.appdir.encode()))
+        self.setWindowIcon(QtGui.QIcon(GlobalSettings.appdir + 'cas9image.png'))
         self.pushButton_FindTargets.clicked.connect(self.gather_settings)
         self.pushButton_ViewTargets.clicked.connect(self.view_results)
         self.pushButton_ViewTargets.setEnabled(False)
@@ -870,7 +873,7 @@ class CMainWindow(QtWidgets.QMainWindow):
             pamdir = True
 
         output_location = GlobalSettings.CSPR_DB
-        path_to_info = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'CASPERinfo')
+        path_to_info = GlobalSettings.appdir + 'CASPERinfo'
         orgName = 'temp org'
         gRNA_length = my_seq.endo_info[myEndoChoice][2]
         seed_length = my_seq.endo_info[myEndoChoice][1]
@@ -1255,8 +1258,7 @@ class CMainWindow(QtWidgets.QMainWindow):
     def make_dictonary(self):
         url = "https://www.genome.jp/dbget-bin/get_linkdb?-t+genes+gn:" + self.TNumbers[
             self.Annotations_Organism.currentText()]
-        #source_code = requests.get(url)
-		source_code = requests.get(url, verify=False)
+        source_code = requests.get(url, verify=False)
         plain_text = source_code.text
         buf = io.StringIO(plain_text)
 
@@ -1459,10 +1461,10 @@ class StartupWindow(QtWidgets.QDialog):
     def __init__(self):
 
         super(StartupWindow, self).__init__()
-        uic.loadUi(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'startupCASPER.ui'), self)
+        uic.loadUi(GlobalSettings.appdir + 'startupCASPER.ui', self)
         self.setWindowModality(2)  # sets the modality of the window to Application Modal
-        self.setWindowIcon(QtGui.QIcon("cas9image.png"))
-        pixmap = QtGui.QPixmap('CASPER-logo.jpg')
+        self.setWindowIcon(QtGui.QIcon(GlobalSettings.appdir + "cas9image.png"))
+        pixmap = QtGui.QPixmap(GlobalSettings.appdir + 'CASPER-logo.jpg')
         self.labelforart.setPixmap(pixmap)
         self.pushButton_2.setDefault(True)
         # Check to see the operating system you are on and change this in Global Settings:
@@ -1512,7 +1514,7 @@ class StartupWindow(QtWidgets.QDialog):
                                            QtWidgets.QMessageBox.Ok)
 
     def check_dir(self):
-        cspr_info = open(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "CASPERinfo"), 'r+')
+        cspr_info = open(GlobalSettings.appdir + "CASPERinfo", 'r+')
         cspr_info = cspr_info.read()
         lines = cspr_info.split('\n')
         line = ""
@@ -1526,7 +1528,7 @@ class StartupWindow(QtWidgets.QDialog):
             return line[10:]
 
     def re_write_dir(self):
-        cspr_info = open(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "CASPERinfo"), 'r+')
+        cspr_info = open(GlobalSettings.appdir + "CASPERinfo", 'r+')
         cspr_info_text = cspr_info.read()
         cspr_info_text = cspr_info_text.split('\n')
         full_doc = ""
@@ -1542,7 +1544,7 @@ class StartupWindow(QtWidgets.QDialog):
                 full_doc = full_doc + "\n" + item
         full_doc = full_doc[1:]
         cspr_info.close()
-        cspr_info = open(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "CASPERinfo"), 'r+')
+        cspr_info = open(GlobalSettings.appdir + "CASPERinfo", 'r+')
         cspr_info.write(full_doc)
 
         cspr_info.close()
@@ -1578,8 +1580,19 @@ class StartupWindow(QtWidgets.QDialog):
 
 
 if __name__ == '__main__':
-    # enable DPI scaling
-    GlobalSettings.appdir = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])))  # used as global constant
+    if hasattr(sys, 'frozen'):
+        GlobalSettings.appdir = sys.executable
+        if platform.system() == 'Windows':
+            GlobalSettings.appdir = GlobalSettings.appdir[:GlobalSettings.appdir.rfind("\\") + 1]
+        else:
+            GlobalSettings.appdir = GlobalSettings.appdir[:GlobalSettings.appdir.rfind("/") + 1]
+    else:
+        GlobalSettings.appdir = os.path.dirname(os.path.abspath(__file__))
+        if platform.system() == 'Windows':
+            GlobalSettings.appdir += '\\'
+        else:
+            GlobalSettings.appdir += '/'
+
 
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 

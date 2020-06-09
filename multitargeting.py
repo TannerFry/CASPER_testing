@@ -422,7 +422,7 @@ class Multitargeting(QtWidgets.QMainWindow):
         c = conn.cursor()
         min_v = int(self.min_chromo.toPlainText())
         max_v = int(self.max_chromo.toPlainText())
-        data = c.execute("SELECT seed, count from repeats where count >= ?  and count <= ?", (min_v, max_v,)).fetchall()
+        data = c.execute("SELECT seed, count from repeats where count >= ?  and count <= ? LIMIT 0,1000", (min_v, max_v,)).fetchall()
         c.close()
         model = QtGui.QStandardItemModel()
         parentItem = model.invisibleRootItem()
