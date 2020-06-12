@@ -13,12 +13,11 @@ import statistics
 
 class Multitargeting(QtWidgets.QMainWindow):
 
-    BAD_instances = {}
-    sorted_instances = []
+
     def __init__(self, parent = None):
         super(Multitargeting, self).__init__()
-        uic.loadUi(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'multitargetingwindow.ui'), self)
-        self.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "cas9image.png")))
+        uic.loadUi(GlobalSettings.appdir + 'multitargetingwindow.ui', self)
+        self.setWindowIcon(QtGui.QIcon(GlobalSettings.appdir + "cas9image.png"))
 
         self.sq = SeqTranslate()  # SeqTranslate object used in class
 
@@ -169,26 +168,20 @@ class Multitargeting(QtWidgets.QMainWindow):
 
 
     def make_graphs(self):
-        # get the correct file name
         self.chromo_length.clear()
-        # file_name = self.shortHand[self.organism_drop.currentText()] + "_" + self.endo_drop.currentText()
-        # calculations and setting the windows
         self.plot_repeats_vs_seeds()
         self.bar_seeds_vs_repeats()
         self.fill_min_max()
         self.fill_seed_id_chrom()
-        self.fill_Chromo_Text()
-        # add back in the statistics later
-        # self.nbr_seq.setText(str(len(self.parser.seeds)))
-        # self.nbr_unq.setText(str(self.parser.uniq_seq_count()))
-        self.avg_rep.setText(str(self.average))
-        self.med_rep.setText(str(self.median))
-        self.mode_rep.setText(str(self.mode))
-        # self.scr_lbl.setText(str(self.average_rep))
+        self.fill_Chromo_Text(self.chromo_seed.currentText())
+        self.avg_rep.setText(str(float(self.average)))
+        self.med_rep.setText(str(float(self.median)))
+        self.mode_rep.setText(str(float(self.mode)))
+        self.nbr_seq.setText(str(float(self.repeat_count)))
 
 
     #fill in chromo bar visualization
-    def fill_Chromo_Text(self):
+    def fill_Chromo_Text(self, seed):
         chromo_pos = {}
         # get kstats
         conn = sqlite3.connect(self.filename)
@@ -197,65 +190,72 @@ class Multitargeting(QtWidgets.QMainWindow):
         for k in c.execute("SELECT * FROM kstats"):
             k = list(k)
             kstats.append(k[0])
-        seed = self.chromo_seed.currentText()
-        data = list(c.execute("SELECT chromosome, location FROM repeats WHERE seed = ? ", (seed,)).fetchone())
+        #seed = self.chromo_seed.currentText()
+        data = c.execute("SELECT chromosome, location FROM repeats WHERE seed = ? ", (seed,)).fetchone()
         c.close()
-        chromo = data[0].split(',')
-        pos = data[1].split(',')
-        self.event_data = {}
-        for i in range(len(chromo)):
-            c = int(chromo[i])
-            p = int(pos[i])
-            k = int(kstats[c - 1])
-            new_pos = int((p / k) * 485)
-            if c in chromo_pos.keys():
-                chromo_pos[c].append(new_pos)
-            else:
-                chromo_pos[c] = [new_pos]
-        i = 0
-        self.scene = QtWidgets.QGraphicsScene()
-        self.graphicsView.setScene(self.scene)
-        self.bar_coords.clear()  # clear bar_coords list before creating visual
-        ind = 0
-        for chromo in chromo_pos:
-            pen_blk = QtGui.QPen(QtCore.Qt.black)
-            pen_red = QtGui.QPen(QtCore.Qt.red)
-            pen_blk.setWidth(3)
-            pen_red.setWidth(3)
-            if i == 0:
-                text = self.scene.addText(str(chromo))
-                text.setPos(0, 0)
-                font = QtGui.QFont()
-                font.setBold(True)
-                font.setPointSize(10)
-                text.setFont(font)
-                self.scene.addRect(40, (i * 25), 525, 25, pen_blk)
-            else:
-                text = self.scene.addText(str(chromo))
-                font = QtGui.QFont()
-                font.setBold(True)
-                font.setPointSize(10)
-                text.setFont(font)
-                text.setPos(0, i * 25 + 10 * i)
-                self.scene.addRect(40, (i * 25) + 10 * i, 525, 25, pen_blk)
-            for k in chromo_pos[chromo]:
-                line = self.scene.addLine(k + 40, (i * 25) + 3 + 10 * i, k + 40, (i * 25) + 22 + 10 * i, pen_red)
-                temp = []  # used for storing coordinates and saving them in self.bar_coords[]
-                temp.append(ind)  # index value
-                temp.append(k + 40)  # x value
-                temp.append((i * 25) + 3 + 10 * i)  # y1
-                temp.append((i * 25) + 22 + 10 * i)  # y2
-                self.bar_coords.append(temp)  # push x, y1, and y2 to this list
-                ind += 1
-            i = i + 1
-        self.generate_event_data()
-
+        if data != None:
+            data = list(data)
+            chromo = data[0].split(',')
+            pos = data[1].split(',')
+            self.event_data = {}
+            for i in range(len(chromo)):
+                c = int(chromo[i])
+                p = int(pos[i])
+                k = int(kstats[c - 1])
+                new_pos = int((p / k) * 485)
+                if c in chromo_pos.keys():
+                    chromo_pos[c].append(new_pos)
+                else:
+                    chromo_pos[c] = [new_pos]
+            i = 0
+            self.scene = QtWidgets.QGraphicsScene()
+            self.graphicsView.setScene(self.scene)
+            self.bar_coords.clear()  # clear bar_coords list before creating visual
+            ind = 0
+            for chromo in chromo_pos:
+                pen_blk = QtGui.QPen(QtCore.Qt.black)
+                pen_red = QtGui.QPen(QtCore.Qt.red)
+                pen_blk.setWidth(3)
+                pen_red.setWidth(3)
+                if i == 0:
+                    text = self.scene.addText(str(chromo))
+                    text.setPos(0, 0)
+                    font = QtGui.QFont()
+                    font.setBold(True)
+                    font.setPointSize(10)
+                    text.setFont(font)
+                    self.scene.addRect(40, (i * 25), 525, 25, pen_blk)
+                else:
+                    text = self.scene.addText(str(chromo))
+                    font = QtGui.QFont()
+                    font.setBold(True)
+                    font.setPointSize(10)
+                    text.setFont(font)
+                    text.setPos(0, i * 25 + 10 * i)
+                    self.scene.addRect(40, (i * 25) + 10 * i, 525, 25, pen_blk)
+                for k in chromo_pos[chromo]:
+                    line = self.scene.addLine(k + 40, (i * 25) + 3 + 10 * i, k + 40, (i * 25) + 22 + 10 * i, pen_red)
+                    temp = []  # used for storing coordinates and saving them in self.bar_coords[]
+                    temp.append(ind)  # index value
+                    temp.append(k + 40)  # x value
+                    temp.append((i * 25) + 3 + 10 * i)  # y1
+                    temp.append((i * 25) + 22 + 10 * i)  # y2
+                    self.bar_coords.append(temp)  # push x, y1, and y2 to this list
+                    ind += 1
+                i = i + 1
+            self.generate_event_data()
+            return True
+        else:
+            QtWidgets.QMessageBox.information(self, "Seed Error",
+                                           "No such seed exists in the repeats section of this organism.",
+                                           QtWidgets.QMessageBox.Ok)
+            return False
 
     # get data for chromsome viewer to display
     def generate_event_data(self):
         conn = sqlite3.connect(self.filename)
         c = conn.cursor()
-        seed = seed = self.chromo_seed.currentText()
+        seed = self.chromo_seed.currentText()
         data = list(c.execute("SELECT * FROM repeats WHERE seed = ? ", (seed,)).fetchone())
         c.close()
         chromo = data[1].split(',')
@@ -376,7 +376,6 @@ class Multitargeting(QtWidgets.QMainWindow):
         c = conn.cursor()
         data = c.execute("SELECT seed, count from repeats").fetchall()
         c.close()
-
         x1 = list(range(0, len(data)))
         y1 = []
         for obj in data:
@@ -387,6 +386,7 @@ class Multitargeting(QtWidgets.QMainWindow):
         self.average = statistics.mean(y1)
         self.mode = statistics.mode(y1)
         self.median = statistics.median(y1)
+        self.repeat_count = len(data)
 
         # clear axes
         self.repeats_vs_seeds_line.canvas.axes.clear()
@@ -446,18 +446,27 @@ class Multitargeting(QtWidgets.QMainWindow):
 
 
     def update(self):
-        if int(self.min_chromo.toPlainText()) > int(self.max_chromo.toPlainText()):
-            QtWidgets.QMessageBox.question(self, "Maximum cant be less than Minimum",
-                                           "The Minimum number of repeats cant be more than the Maximum",
-                                           QtWidgets.QMessageBox.Ok)
-        else:
-            self.fill_seed_id_chrom()
-            self.fill_Chromo_Text()
+        self.scene2 = QtWidgets.QGraphicsScene()
+        self.graphicsView_2.setScene(self.scene2)
+        if self.min_chromo.toPlainText() != '' and self.max_chromo.toPlainText() != '':
+            if int(self.min_chromo.toPlainText()) > int(self.max_chromo.toPlainText()):
+                QtWidgets.QMessageBox.question(self, "Maximum cant be less than Minimum",
+                                               "The Minimum number of repeats cant be more than the Maximum",
+                                               QtWidgets.QMessageBox.Ok)
+            else:
+                if self.seed.toPlainText() == '':
+                    self.fill_seed_id_chrom()
+                    self.fill_Chromo_Text(self.chromo_seed.currentText())
+                else:
+                    result = self.fill_Chromo_Text(self.seed.toPlainText())
+                    if result == True:
+                        self.chro_bar_create(self.seed.toPlainText())
 
 
     def seed_chromo_changed(self):
+        self.seed.setText('')
         self.chro_bar_create(self.chromo_seed.currentText())
-        self.fill_Chromo_Text()
+        self.fill_Chromo_Text(self.chromo_seed.currentText())
 
 
     #connects to view->CASPER to switch back to the main CASPER window

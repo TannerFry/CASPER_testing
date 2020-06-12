@@ -18,7 +18,7 @@ def iter_except(function, exception):
 class NewGenome(QtWidgets.QMainWindow):
     def __init__(self, info_path):
         super(NewGenome, self).__init__()
-        uic.loadUi('NewGenome.ui', self)
+        uic.loadUi(GlobalSettings.appdir + 'NewGenome.ui', self)
         self.setWindowTitle('New Genome')
         self.setWindowTitle('New Genome')
         self.k = KEGG()
@@ -42,7 +42,7 @@ class NewGenome(QtWidgets.QMainWindow):
 
         #---Button Modifications---#
 
-        self.setWindowIcon(Qt.QIcon(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "cas9image.png")))
+        self.setWindowIcon(Qt.QIcon(GlobalSettings.appdir + "cas9image.png"))
         self.whatsthisButton.clicked.connect(self.whatsthisclicked)
         self.KeggSearchButton.clicked.connect(self.updatekegglist)
         self.resetButton.clicked.connect(self.reset)
@@ -170,10 +170,8 @@ class NewGenome(QtWidgets.QMainWindow):
         self.job_Table.resizeColumnsToContents()
 
     def fillEndo(self):
-        if GlobalSettings.OPERATING_SYSTEM_ID == "Windows":
-            f = open(self.info_path + "\\CASPERinfo")
-        else:
-            f = open(self.info_path + "/CASPERinfo")
+        f = open(GlobalSettings.appdir + "CASPERinfo")
+
         while True:
             line = f.readline()
             if line.startswith('ENDONUCLEASES'):

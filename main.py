@@ -5,7 +5,7 @@ from PyQt5 import QtWidgets, Qt, QtGui, QtCore, uic
 from APIs import Kegg
 from bioservices import KEGG
 from CoTargeting import CoTargeting
-from closingWin import closingWindow
+from closingWin import closingWindows
 from Results import Results, geneViewerSettings
 from NewGenome import NewGenome, NCBI_Search_File
 from NewEndonuclease import NewEndonuclease
@@ -32,6 +32,7 @@ import platform
 # =========================================================================================
 
 class AnnotationsWindow(QtWidgets.QMainWindow):
+
     def __init__(self, info_path):
         super(AnnotationsWindow, self).__init__()
         uic.loadUi(GlobalSettings.appdir + 'Annotation Details.ui', self)
@@ -41,6 +42,7 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         self.select_all_checkbox.stateChanged.connect(self.select_all_genes)
         self.mainWindow = ""
         self.type = ""
+
 
     def submit(self):
         if self.type == "kegg":
@@ -52,6 +54,7 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
             self.hide()
             self.mainWindow.show()
 
+
     def go_Back(self):
         self.tableWidget.clear()
         self.mainWindow.checkBoxes.clear()
@@ -60,6 +63,7 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         self.mainWindow.show()
         self.mainWindow.progressBar.setValue(0)
         self.hide()
+
 
     # this function is very similar to the other fill_table, it just works with the other types of annotation files
     def fill_table_nonKegg(self, mainWindow):
@@ -114,6 +118,17 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
                         self.tableWidget.setItem(index, 1, chrom_number)
 
                         index += 1
+                    if index >= 1000:
+                        break
+                if index >= 1000:
+                    break
+            if index >= 1000:
+                break
+
+
+
+
+
         index = 0
         self.tableWidget.resizeColumnsToContents()
 
@@ -136,6 +151,7 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
             self.mainWindow.collect_table_data_nonkegg()
         return 0
 
+
     # this is the connection for the select all checkbox
     # selects/deselects all the genes in the table
     def select_all_genes(self):
@@ -153,6 +169,7 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
             for i in range(self.tableWidget.rowCount()):
                 self.tableWidget.cellWidget(i, 4).setChecked(select_all)
 
+
     def fill_Table(self, mainWindow):
         self.tableWidget.clearContents()
         self.mainWindow = mainWindow
@@ -164,14 +181,13 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         self.type = "kegg"
 
         mainWindow.checkBoxes = []
-        for sValues in mainWindow.searches:
-            for definition in mainWindow.searches[sValues]:
-                for gene in mainWindow.searches[sValues][definition]:
-                    index = index + 1
+
+        index = 1000
         self.tableWidget.setRowCount(index)
         if index == 0:
             return -1
         index = 0
+
 
         for sValues in mainWindow.searches:
             for definition in mainWindow.searches[sValues]:
@@ -185,6 +201,12 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
                     self.tableWidget.setItem(index, 1, gene_obj)
                     self.tableWidget.setCellWidget(index, 2, ckbox)
                     index = index + 1
+                    if index >= 1000:
+                        break
+                if index >= 1000:
+                    break
+            if index >= 1000:
+                break
         self.tableWidget.resizeColumnsToContents()
         self.mainWindow.progressBar.setValue(50)
         if mainWindow.Show_All_Results.isChecked():
@@ -206,6 +228,7 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
             self.mainWindow.collect_table_data()  # collect the data
         return 0
 
+
     # this function calls the closingWindow class.
     def closeEvent(self, event):
         GlobalSettings.mainWindow.closeFunction()
@@ -223,7 +246,6 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
 class CMainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, info_path):
-
         super(CMainWindow, self).__init__()
         uic.loadUi(GlobalSettings.appdir + 'CASPER_main.ui', self)
         self.dbpath = ""
@@ -331,6 +353,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.genLib = genLibrary()
         self.myClosingWindow = closingWindow()
 
+
     def endo_Changed(self):
         i = 3
         self.add_orgo.clear()
@@ -341,6 +364,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.Added_Org_Label.hide()
         self.Remove_Organism_Button.hide()
 
+
     ####---FUNCTIONS TO RUN EACH BUTTON---####
     def remove_Orgo(self):
         self.add_orgo.remove(self.Added_Org_Combo.currentText())
@@ -350,6 +374,7 @@ class CMainWindow(QtWidgets.QMainWindow):
             self.Added_Org_Combo.hide()
             self.Added_Org_Label.hide()
             self.Remove_Organism_Button.hide()
+
 
     def add_Orgo(self):
         if self.Add_Orgo_Combo.currentText() == "Select Organism":
@@ -364,6 +389,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.Added_Org_Combo.show()
         self.Added_Org_Label.show()
         self.Remove_Organism_Button.show()
+
 
     # this function prepares everything for the generate library function
     # it is very similar to the gather settings, how ever it stores the data instead of calling the Annotation Window class
@@ -435,6 +461,7 @@ class CMainWindow(QtWidgets.QMainWindow):
             else:
                 self.progressBar.setValue(0)
 
+
     # Function for collecting the settings from the input field and transferring them to run_results
     def gather_settings(self):
         inputstring = str(self.geneEntryField.toPlainText())
@@ -457,6 +484,7 @@ class CMainWindow(QtWidgets.QMainWindow):
             elif self.radioButton_Sequence.isChecked():
                 sinput = inputstring
                 self.run_results("sequence", sinput)
+
 
     # ---- Following functions are for running the auxillary algorithms and windows ---- #
     # this function is parses the annotation file given, and then goes through and goes onto results
@@ -570,6 +598,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         else:
             return True
 
+
     def run_results(self, inputtype, inputstring, openAnnoWindow=True):
         kegginfo = Kegg()
         org = str(self.orgChoice.currentText())
@@ -648,7 +677,6 @@ class CMainWindow(QtWidgets.QMainWindow):
                                   os.path.isfile(os.path.join(GlobalSettings.CSPR_DB, f))]
                     for file in file_names:
                         if ".gz" in file:
-                            # print("Deleting: ", file)
                             os.remove(file)
 
                     # now run results
@@ -840,6 +868,7 @@ class CMainWindow(QtWidgets.QMainWindow):
             self.progressBar.setValue(55)
             self.build_cspr_for_seq(fna_file_path)
 
+
     # this function actually builds the cspr file
     # I am not pulling out the data for the progress bar here, but it could be added easily. Figured it would be best without it since the progress should run quickly
     def build_cspr_for_seq(self, fna_file_path):
@@ -900,16 +929,20 @@ class CMainWindow(QtWidgets.QMainWindow):
         seq_search_process.start(program)
         seq_search_process.finished.connect(finished)
 
+
     def launch_newGenome(self):
         self.hide()
         self.newGenome.show()
 
+
     def launch_newEndonuclease(self):
         self.newEndonuclease.show()
+
 
     def launch_newGenomeBrowser(self):
         print("creating graph")
         createGraph(self)
+
 
     # this function does the same stuff that the other collect_table_data does, but works with the other types of files
     def collect_table_data_nonkegg(self):
@@ -944,6 +977,7 @@ class CMainWindow(QtWidgets.QMainWindow):
                                    self.checked_info, self.check_ntseq_info, "")
         self.progressBar.setValue(100)
         self.pushButton_ViewTargets.setEnabled(True)
+
 
     # this function is very similar for the Kegg version of collect_table_data
     # difference is that it doesn't use the checkboxes from Annotation Window, just the search values
@@ -982,6 +1016,7 @@ class CMainWindow(QtWidgets.QMainWindow):
 
         # return this new dict
         return temp_dict
+
 
     def collect_table_data(self):
         # need to change this code so that it works with other types of files
@@ -1034,6 +1069,7 @@ class CMainWindow(QtWidgets.QMainWindow):
             export_array.append(input_string[:index])
             input_string = input_string[index + 1:]
 
+
     def removeWhiteSpace(self, strng):
         while True:
             if len(strng) == 0 or (strng[0] != " " and strng[0] != "\n"):
@@ -1043,6 +1079,7 @@ class CMainWindow(QtWidgets.QMainWindow):
             if len(strng) == 0 or (strng[len(strng) - 1] != " " and strng[0] != "\n"):
                 return strng
             strng = strng[:len(strng) - 1]
+
 
     # Function to enable and disable the Annotation function if searching by position or sequence
     def toggle_annotation(self):
@@ -1082,6 +1119,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.orgChoice.setEnabled(seq_checker)
         self.NCBI_Select.setEnabled(s)
 
+
     def selected_annotation(self):
         if self.Annotation_Ownfile.isChecked():
             return "Own"
@@ -1089,6 +1127,7 @@ class CMainWindow(QtWidgets.QMainWindow):
             return "Kegg"
         else:
             return "NCBI"
+
 
     def change_annotation(self):
         if self.Annotation_Ownfile.isChecked():
@@ -1127,9 +1166,9 @@ class CMainWindow(QtWidgets.QMainWindow):
             self.Search_Label.setText("Search NCBI Database for genome annotation")
             self.Search_Input.setText(self.orgChoice.currentText())
 
+
     # This function works as a way to look up a search term in the Kegg database to potentially get the code
     # for the gene
-
     def search_kegg_ncbi_browse_own(self):
         # code that lets the user input their own Annotation File
         if self.Annotation_Ownfile.isChecked():
@@ -1168,7 +1207,6 @@ class CMainWindow(QtWidgets.QMainWindow):
                         print("Searching Kegg for: ", stringList[i])
                         if stringList[i] != "":
                             All_org = k.lookfor_organism(stringList[i])
-
                             for item in All_org:
                                 hold = self.organism_finder(item)
                                 # make sure that there are no repeats
@@ -1255,6 +1293,7 @@ class CMainWindow(QtWidgets.QMainWindow):
 
             print("Done searching NCBI")
 
+
     def make_dictonary(self):
         url = "https://www.genome.jp/dbget-bin/get_linkdb?-t+genes+gn:" + self.TNumbers[
             self.Annotations_Organism.currentText()]
@@ -1288,6 +1327,7 @@ class CMainWindow(QtWidgets.QMainWindow):
                 self.gene_list[key] = [seq]
             z = 5
 
+
     def organism_finder(self, long_str):
         semi = long_str.find(";")
         index = 1
@@ -1297,8 +1337,10 @@ class CMainWindow(QtWidgets.QMainWindow):
             index = index + 1
         return long_str[:semi - index]
 
+
     def search_own_file(self):
         print("searching for own file")
+
 
     # This method is for testing the execution of a button call to make sure the button is linked properly
     def testexe(self):
@@ -1310,15 +1352,18 @@ class CMainWindow(QtWidgets.QMainWindow):
         else:
             pass
 
+
     # This method checks if a check button or radio button works appropriately by printing the current organism
     def testcheckandradio(self):
         print(str(self.orgChoice.currentText()))
+
 
     def addOrgoCombo(self):
         self.Add_Orgo_Combo.addItem("Select Organism")
         for item in self.data:
             if (self.endoChoice.currentText() in self.data[item]) and (item != str(self.orgChoice.currentText())):
                 self.Add_Orgo_Combo.addItem(item)
+
 
     # ----- CALLED IN STARTUP WINDOW ------ #
     def getData(self):
@@ -1359,11 +1404,12 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.endoChoice.addItems(self.data[str(self.orgChoice.currentText())])
         self.orgChoice.currentIndexChanged.connect(self.changeEndos)
 
-    def changeEndos(self):
 
+    def changeEndos(self):
         self.endoChoice.clear()
         self.endoChoice.addItems(self.data[str(self.orgChoice.currentText())])
         self.Search_Input.setText(self.orgChoice.currentText())
+
 
     def change_directory(self):
         filed = QtWidgets.QFileDialog()
@@ -1374,6 +1420,7 @@ class CMainWindow(QtWidgets.QMainWindow):
             os.chdir(mydir)
         self.getData()
 
+
     # Tanner - added this function to allow the Tools->Multitargeting button to work
     # Function launches the multitargeting window and closing the current one
     def changeto_multitargeting(self):
@@ -1381,16 +1428,19 @@ class CMainWindow(QtWidgets.QMainWindow):
         GlobalSettings.MTWin.show()
         GlobalSettings.mainWindow.hide()
 
+
     def changeto_population_Analysis(self):
         GlobalSettings.pop_Analysis.launch(GlobalSettings.CSPR_DB)
         GlobalSettings.pop_Analysis.show()
         GlobalSettings.mainWindow.hide()
+
 
     def add_org_popup(self):
         info = "This functionality will allow users to use different organisms for off-target analysis in a future " \
                "version of the software. If you need to run analysis on multiple organisms, please use the Population " \
                "Analysis feature."
         QtWidgets.QMessageBox.information(self, "Add Organism Information", info, QtWidgets.QMessageBox.Ok)
+
 
     def annotation_information(self):
         info = "Annotation files for searching for targets on a gene/locus basis can be selected here using either KEGG " \
@@ -1400,17 +1450,22 @@ class CMainWindow(QtWidgets.QMainWindow):
                "file to your local computer and choose ‘Choose Annotation File’"
         QtWidgets.QMessageBox.information(self, "Annotation Information", info, QtWidgets.QMessageBox.Ok)
 
+
     def open_ncbi_blast_web_page(self):
         webbrowser.open('https://blast.ncbi.nlm.nih.gov/Blast.cgi', new=2)
+
 
     def open_ncbi_web_page(self):
         webbrowser.open('https://www.ncbi.nlm.nih.gov/', new=2)
 
+
     def open_casper2_web_page(self):
         webbrowser.open('http://casper2.org/', new=2)
 
+
     def visit_repo_func(self):
         webbrowser.open('https://github.com/TrinhLab/CASPERapp')
+
 
     @QtCore.pyqtSlot()
     def view_results(self):
@@ -1428,10 +1483,12 @@ class CMainWindow(QtWidgets.QMainWindow):
 
         self.Results.show()
 
+
     # this function calls the closingWindow class.
     def closeEvent(self, event):
         self.closeFunction()
         event.accept()
+
 
     # this if the function that is called when the user closes the program entirely.
     # so far I only know of 4 spots that can do this
@@ -1442,6 +1499,7 @@ class CMainWindow(QtWidgets.QMainWindow):
     def closeFunction(self):
         self.myClosingWindow.get_files()
         self.myClosingWindow.show()
+
 
     def close_app(self):
         self.closeFunction()
@@ -1458,8 +1516,8 @@ class CMainWindow(QtWidgets.QMainWindow):
 
 class StartupWindow(QtWidgets.QDialog):
 
-    def __init__(self):
 
+    def __init__(self):
         super(StartupWindow, self).__init__()
         uic.loadUi(GlobalSettings.appdir + 'startupCASPER.ui', self)
         self.setWindowModality(2)  # sets the modality of the window to Application Modal
@@ -1479,6 +1537,7 @@ class StartupWindow(QtWidgets.QDialog):
         self.pushButton.clicked.connect(self.errormsgmulti)
         self.show()
 
+
     ####---FUNCTIONS TO RUN EACH BUTTON---####
     def changeDir(self):
         filed = QtWidgets.QFileDialog()
@@ -1493,6 +1552,7 @@ class StartupWindow(QtWidgets.QDialog):
         GlobalSettings.CSPR_DB = cdir
         # print(mydir)
         # print(cdir)
+
 
     def errormsgmulti(self):
         self.gdirectory = str(self.lineEdit.text())
@@ -1513,6 +1573,7 @@ class StartupWindow(QtWidgets.QDialog):
             QtWidgets.QMessageBox.question(self, "Not a directory", "The directory you selected does not exist.",
                                            QtWidgets.QMessageBox.Ok)
 
+
     def check_dir(self):
         cspr_info = open(GlobalSettings.appdir + "CASPERinfo", 'r+')
         cspr_info = cspr_info.read()
@@ -1526,6 +1587,7 @@ class StartupWindow(QtWidgets.QDialog):
             return os.path.expanduser("~\Documents").replace('\\', '/')
         else:
             return line[10:]
+
 
     def re_write_dir(self):
         cspr_info = open(GlobalSettings.appdir + "CASPERinfo", 'r+')
@@ -1549,8 +1611,8 @@ class StartupWindow(QtWidgets.QDialog):
 
         cspr_info.close()
 
-    def show_window(self):
 
+    def show_window(self):
         self.gdirectory = str(self.lineEdit.text())
         # print(self.gdirectory)
         if "Please select a directory that contains .cspr files" in self.gdirectory:
@@ -1578,7 +1640,6 @@ class StartupWindow(QtWidgets.QDialog):
 
 
 
-
 if __name__ == '__main__':
     if hasattr(sys, 'frozen'):
         GlobalSettings.appdir = sys.executable
@@ -1595,14 +1656,11 @@ if __name__ == '__main__':
 
 
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-
     app = Qt.QApplication(sys.argv)
     app.setOrganizationName("TrinhLab-UTK")
     app.setApplicationName("CASPER")
-
     startup = StartupWindow()
     GlobalSettings.mainWindow = CMainWindow(os.getcwd())
     GlobalSettings.MTWin = multitargeting.Multitargeting()
     GlobalSettings.pop_Analysis = populationAnalysis.Pop_Analysis()
-
     sys.exit(app.exec_())
