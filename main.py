@@ -5,7 +5,7 @@ from PyQt5 import QtWidgets, Qt, QtGui, QtCore, uic
 from APIs import Kegg
 from bioservices import KEGG
 from CoTargeting import CoTargeting
-from closingWin import closingWindows
+from closingWin import closingWindow
 from Results import Results, geneViewerSettings
 from NewGenome import NewGenome, NCBI_Search_File
 from NewEndonuclease import NewEndonuclease
@@ -1654,7 +1654,7 @@ if __name__ == '__main__':
         else:
             GlobalSettings.appdir += '/'
 
-
+    print(GlobalSettings.appdir)
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
     app = Qt.QApplication(sys.argv)
     app.setOrganizationName("TrinhLab-UTK")
