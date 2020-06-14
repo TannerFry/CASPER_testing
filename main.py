@@ -18,7 +18,7 @@ import multitargeting
 from AnnotationParser import Annotation_Parser
 from NCBI_API import Assembly
 from export_to_csv import export_csv_window
-from cspr_chromesome_selection import cspr_chromesome_selection
+from cspr_chromosome_selection import cspr_chromosome_selection
 from generateLib import genLibrary
 from Algorithms import SeqTranslate
 from CSPRparser import CSPRparser
@@ -348,8 +348,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.Results = Results()
         self.gene_viewer_settings = geneViewerSettings()
         self.export_csv_window = export_csv_window()
-        #self.cspr_selector = cspr_chromosome_selection()
-        self.cspr_selector = cspr_chromesome_selection()
+        self.cspr_selector = cspr_chromosome_selection()
         self.genLib = genLibrary()
         self.myClosingWindow = closingWindow()
 
@@ -1654,7 +1653,6 @@ if __name__ == '__main__':
         else:
             GlobalSettings.appdir += '/'
 
-    print(GlobalSettings.appdir)
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
     app = Qt.QApplication(sys.argv)
     app.setOrganizationName("TrinhLab-UTK")
