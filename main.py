@@ -1662,5 +1662,3 @@ if __name__ == '__main__':
     GlobalSettings.MTWin = multitargeting.Multitargeting()
     GlobalSettings.pop_Analysis = populationAnalysis.Pop_Analysis()
     sys.exit(app.exec_())
-
-    #branch testing
