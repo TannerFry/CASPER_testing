@@ -23,7 +23,7 @@ import multitargeting
 from AnnotationParser import Annotation_Parser
 from NCBI_API import Assembly
 from export_to_csv import export_csv_window
-from cspr_chromosome_selection import cspr_chromosome_selection
+from cspr_chromesome_selection import cspr_chromesome_selection
 from generateLib import genLibrary
 from functools import partial
 ############################## MT Libraries #####################
@@ -53,23 +53,15 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         self.select_all_checkbox.stateChanged.connect(self.select_all_genes)
         self.mainWindow=""
         self.type = ""
-        self.mwfg = self.frameGeometry() ##Center window
-        self.cp = QtWidgets.QDesktopWidget().availableGeometry().center() ##Center window
-        
 
-    
     def submit(self):
         if self.type == "kegg":
             self.mainWindow.collect_table_data()
             self.hide()
-            self.mainWindow.mwfg.moveCenter(self.mainWindow.cp) ##Center window
-            self.mainWindow.move(self.mainWindow.mwfg.topLeft()) ##Center window
             self.mainWindow.show()
         elif self.type == "nonkegg":
             self.mainWindow.collect_table_data_nonkegg()
             self.hide()
-            self.mainWindow.mwfg.moveCenter(self.mainWindow.cp) ##Center window
-            self.mainWindow.move(self.mainWindow.mwfg.topLeft()) ##Center window
             self.mainWindow.show()
 
     def go_Back(self):
@@ -77,8 +69,6 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         self.mainWindow.checkBoxes.clear()
         self.mainWindow.searches.clear()
         self.tableWidget.setColumnCount(0)
-        self.mainWindow.mwfg.moveCenter(self.mainWindow.cp) ##Center window
-        self.mainWindow.move(self.mainWindow.mwfg.topLeft()) ##Center window
         self.mainWindow.show()
         self.mainWindow.progressBar.setValue(0)
         self.hide()
@@ -142,13 +132,11 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         # if show all is checked, show the window so the user can select the genes they want
         if mainWindow.Show_All_Results.isChecked():
             mainWindow.hide()
-            self.mwfg.moveCenter(self.cp) ##Center window
-            self.move(self.mwfg.topLeft()) ##Center window
             self.show()
         else: # show all not checked
             if (len(mainWindow.checkBoxes) > 15):  # check the size, throw an error if it is too large
                 error = QtWidgets.QMessageBox.question(self, "Large File Found",
-                                                       "This annotation file and search parameter yieled many matches and could cause a slow down.\n\n"
+                                                       "This Annotation file and search parameter yieled many matches, and could cause a slow down.\n\n"
                                                        "Do you wish to continue?",
                                                        QtWidgets.QMessageBox.Yes |
                                                        QtWidgets.QMessageBox.No,
@@ -214,13 +202,11 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         self.mainWindow.progressBar.setValue(50)
         if mainWindow.Show_All_Results.isChecked():
             mainWindow.hide()
-            self.mwfg.moveCenter(self.cp) ##Center window
-            self.move(self.mwfg.topLeft()) ##Center window
             self.show()
         else: #Show all not checked
             if(len(mainWindow.checkBoxes) > 15):#check the size, throw an error if it is too large
                 error = QtWidgets.QMessageBox.question(self, "Large File Found",
-                                                       "This annotation file and search parameter yieled many matches and could cause a slow down.\n\n"
+                                                       "This Annotation file and search parameter yieled many matches, and could cause a slow down.\n\n"
                                                        "Do you wish to continue?",
                                                        QtWidgets.QMessageBox.Yes |
                                                        QtWidgets.QMessageBox.No,
@@ -269,25 +255,6 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.ncbi_searcher = Assembly()
         self.link_list = list() # the list of the downloadable links from the NCBI search
         self.organismDict = dict() # the dictionary for the links to download. Key is the description of the organism, value is the ID that can be found in link_list
-        self.organismData = list()
-
-        self.mwfg = self.frameGeometry() ##Center window
-        self.cp = QtWidgets.QDesktopWidget().availableGeometry().center() ##Center window
-        
-        # --- Style Modifications --- #
-        groupbox_style = """
-        QGroupBox:title{subcontrol-origin: margin;
-                        left: 10px;
-                        padding: 0 5px 0 5px;}
-        QGroupBox#Step1{border: 2px solid rgb(111,181,110);
-                        border-radius: 9px;
-                        font: 11pt "Sans Serif";
-                        font: bold;
-                        margin-top: 10px;}"""
-
-        self.Step1.setStyleSheet(groupbox_style)
-        self.Step2.setStyleSheet(groupbox_style.replace("Step1","Step2").replace("rgb(111,181,110)","rgb(77,158,89)"))
-        self.Step3.setStyleSheet(groupbox_style.replace("Step1","Step3").replace("rgb(111,181,110)","rgb(53,121,93)"))
 
         # --- Button Modifications --- #
         self.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "cas9image.png")))
@@ -354,7 +321,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.Results = Results()
         self.gene_viewer_settings = geneViewerSettings()
         self.export_csv_window = export_csv_window()
-        self.cspr_selector = cspr_chromosome_selection()
+        self.cspr_selector = cspr_chromesome_selection()
         self.genLib = genLibrary()
         self.myClosingWindow = closingWindow()
 
@@ -382,7 +349,7 @@ class CMainWindow(QtWidgets.QMainWindow):
     def add_Orgo(self):
         if self.Add_Orgo_Combo.currentText() == "Select Organism":
             QtWidgets.QMessageBox.question(self, "Must Select Organism",
-                                           "You must select an organism to add.",
+                                           "You must select an Organism to add",
                                            QtWidgets.QMessageBox.Ok)
             return
 
@@ -402,7 +369,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         inputstring = str(self.geneEntryField.toPlainText())
         if (inputstring.startswith("Example Inputs:") or inputstring == ""):
             QtWidgets.QMessageBox.question(self, "Error",
-                                           "No gene has been entered. Please enter a gene.",
+                                           "No Gene has been entered. Please enter a gene.",
                                            QtWidgets.QMessageBox.Ok)
         else:
             # standardize the input
@@ -415,7 +382,7 @@ class CMainWindow(QtWidgets.QMainWindow):
                 ginput = inputstring.split(',')
                 found_matches_bool = self.run_results("gene", ginput, openAnnoWindow=False)
             elif self.radioButton_Position.isChecked() or self.radioButton_Sequence.isChecked():
-                QtWidgets.QMessageBox.question(self, "Error", "Generate Library can only work with gene (Locus ID).", QtWidgets.QMessageBox.Ok)
+                QtWidgets.QMessageBox.question(self, "Error", "Generate Library can only work with Gene (Locus ID)", QtWidgets.QMessageBox.Ok)
                 return
             """
             elif self.radioButton_Position.isChecked():
@@ -449,7 +416,7 @@ class CMainWindow(QtWidgets.QMainWindow):
 
                 # warn the user if the number is greater than 50
                 if tempSum > 50:
-                    error = QtWidgets.QMessageBox.question(self, "Many Matches Found",
+                    error = QtWidgets.QMessageBox.question(self, "Many matches Found",
                                                        "More than 50 matches have been found. Continuing could cause a slow down. .\n\n"
                                                        "Do you wish to continue?",
                                                        QtWidgets.QMessageBox.Yes |
@@ -472,7 +439,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         #Error check: make sure the user actually inputs something
         if(inputstring.startswith("Example Inputs:") or inputstring == ""):
             QtWidgets.QMessageBox.question(self, "Error",
-                "No gene has been entered. Please enter a gene." ,
+                "No Gene has been entered. Please enter a gene." ,
                 QtWidgets.QMessageBox.Ok)
         else:
             #standardize the input
@@ -512,7 +479,7 @@ class CMainWindow(QtWidgets.QMainWindow):
 
         self.progressBar.setValue(60)
 
-        # this bit may not be needed here. Just a quick error check to make sure the chromosome numbers match
+        # this bit may not be needed here. Just a quick error check to make sure the chromesome numbers match
         full_org = str(self.orgChoice.currentText())
         cspr_file = (GlobalSettings.CSPR_DB + "/" + self.shortHand[full_org] + "_" + str(self.endoChoice.currentText()) + ".cspr")
         own_cspr_parser = CSPRparser(cspr_file)
@@ -520,7 +487,7 @@ class CMainWindow(QtWidgets.QMainWindow):
 
         if len(own_cspr_parser.karystatsList) != self.annotation_parser.max_chrom:
             QtWidgets.QMessageBox.question(self, "Warning:",
-                                           "The number of chromosomes do not match. This could cause errors."
+                                           "The number of chromesomes do not match. This could cause errors."
                                            , QtWidgets.QMessageBox.Ok)
 
         ##may need to open a message window here
@@ -578,7 +545,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         # if the search returns nothing, throw an error
         if len(self.searches[searchValues[0]]) <= 0:
             QtWidgets.QMessageBox.question(self, "No Matches Found",
-                                           "No matches found with that search, please try again.",
+                                           "No matches found with that search, please try again",
                                            QtWidgets.QMessageBox.Ok)
             self.progressBar.setValue(0)
             if openAnnoWindow:
@@ -625,7 +592,7 @@ class CMainWindow(QtWidgets.QMainWindow):
             # make sure an annotation file has been selected
             if self.Annotations_Organism.currentText() == "":
                 error = QtWidgets.QMessageBox.question(self, "No Annotation",
-                                                   "Please select an annotation from either KEGG, NCBI, or provide you own annotation file"
+                                                   "Please select an Annotation from either KEGG, NCBI, or provide you own Annotation File"
                                                    , QtWidgets.QMessageBox.Ok)
                 self.progressBar.setValue(0)
                 return
@@ -652,22 +619,11 @@ class CMainWindow(QtWidgets.QMainWindow):
                 elif self.feature_table_button.isChecked():
                     type_of_annotation_file = "_feature_table.txt.gz"
 
-                if type_of_annotation_file == "_genomic.gbff.gz":
-
-                    selected_option = (self.Annotations_Organism.currentText()).split()
-                    selected_assembly = selected_option[len(selected_option) - 1]
-                    
-                    #downloads selected organism's .gbff annotation file
-                    for item in self.organismData:
-                        if selected_assembly in item['AssemblyAccession']:
-                            compressed_file = self.ncbi_searcher.download_compressed_annotation_file(item['genbank_link'], type_of_annotation_file)
-                            break 
-                else:       
-                    # go through and find the link that works, and download that compressed file
-                    for i in range(len(self.link_list)):
-                        if self.organismDict[self.Annotations_Organism.currentText()] in self.link_list[i]:
-                            compressed_file = self.ncbi_searcher.download_compressed_annotation_file(self.link_list[i], type_of_annotation_file)
-                            break
+                # go through and find the link that works, and download that compressed file
+                for i in range(len(self.link_list)):
+                    if self.organismDict[self.Annotations_Organism.currentText()] in self.link_list[i]:
+                        compressed_file = self.ncbi_searcher.download_compressed_annotation_file(self.link_list[i], type_of_annotation_file)
+                        break
 
                 #decompress that file, and then delete the compressed version
                 if compressed_file:
@@ -689,7 +645,7 @@ class CMainWindow(QtWidgets.QMainWindow):
                         return myBool
                 else:
                     QtWidgets.QMessageBox.question(self, "Error",
-                                                   "The database does not have the type of file you have requested. Please try another type of file."
+                                                   "The database does not have the type of file you have requested. Please try another type of file"
                                                    , QtWidgets.QMessageBox.Ok)
                     self.progressBar.setValue(0)
                     return
@@ -744,7 +700,7 @@ class CMainWindow(QtWidgets.QMainWindow):
                     did_work = self.Annotation_Window.fill_Table(self)
                     if did_work == -1:
                         QtWidgets.QMessageBox.question(self, "Gene Database Error",
-                                                       "The gene you entered could not be found in the KEGG database. "
+                                                       "The Gene you entered could not be found in the Kegg database. "
                                                        "Please make sure you entered everything correctly and try again.",
                                                        QtWidgets.QMessageBox.Ok)
                         self.progressBar.setValue(0)
@@ -760,7 +716,7 @@ class CMainWindow(QtWidgets.QMainWindow):
                     # see if there's matches
                     if len(self.searches) == 0:
                         QtWidgets.QMessageBox.question(self, "Gene Database Error",
-                                                   "The gene you entered could not be found in the KEGG database. "
+                                                   "The Gene you entered could not be found in the Kegg database. "
                                                    "Please make sure you entered everything correctly and try again.",
                                                    QtWidgets.QMessageBox.Ok)
                         self.progressBar.setValue(0)
@@ -785,7 +741,7 @@ class CMainWindow(QtWidgets.QMainWindow):
                 # make sure the right amount of arguments were passed
                 if len(searchIndicies) != 3:
                     QtWidgets.QMessageBox.question(self, "Position Error: Invalid Input",
-                            "There are 3 arguments required for this function: chromosome, start position, and end position.",
+                                                   "There are 3 arguments required for this function. The chromosome, start position, and end position.",
                                                    QtWidgets.QMessageBox.Ok)
                     self.progressBar.setValue(0)
                     return
@@ -799,7 +755,7 @@ class CMainWindow(QtWidgets.QMainWindow):
                     return
                 # make sure start is less than end
                 elif int(searchIndicies[1]) >= int(searchIndicies[2]):
-                    QtWidgets.QMessageBox.question(self, "Position Error: Start Must Be Less Than End",
+                    QtWidgets.QMessageBox.question(self, "Position Error: Start must be less than End",
                                                    "The start index must be less than the end index.",
                                                    QtWidgets.QMessageBox.Ok)
                     self.progressBar.setValue(0)
@@ -824,14 +780,14 @@ class CMainWindow(QtWidgets.QMainWindow):
 
             # check to make sure that the use gave a long enough sequence
             if len(inputstring) < 100:
-                QtWidgets.QMessageBox.question(self, "Error", "The sequence given is too small. At least 100 characters are required.", QtWidgets.QMessageBox.Ok)
+                QtWidgets.QMessageBox.question(self, "Error", "The sequence given is too small. At least 100 characters is required.", QtWidgets.QMessageBox.Ok)
                 self.progressBar.setValue(0)
                 return
 
             # give a warning if the length of the sequence is long
             if len(inputstring) > 30000:
                 error = QtWidgets.QMessageBox.question(self, "Large Sequence Detected",
-                                                       "The sequence given is a large one and could slow down the process.\n\n"
+                                                       "The sequence given is a large one, and could slow down the process.\n\n"
                                                        "Do you wish to continue?",
                                                        QtWidgets.QMessageBox.Yes |
                                                        QtWidgets.QMessageBox.No,
@@ -926,12 +882,10 @@ class CMainWindow(QtWidgets.QMainWindow):
 
     def launch_newGenome(self):
         self.hide()
-        self.newGenome.mwfg.moveCenter(self.newGenome.cp) ##Center window
-        self.newGenome.move(self.mwfg.topLeft()) ##Center window
         self.newGenome.show()
 
     def launch_newEndonuclease(self):
-        self.newEndonuclease.show()
+       self.newEndonuclease.show()
 
     def launch_newGenomeBrowser(self):
        createGraph(self)
@@ -1212,7 +1166,7 @@ class CMainWindow(QtWidgets.QMainWindow):
                 #print("Done searching.\n")
                 if(len(self.Annotations_Organism) <= 0):
                     QtWidgets.QMessageBox.question(self, "Error",
-                                                  "No matches found with that search parameter.",
+                                                  "No matches found with that search parameter",
                                                    QtWidgets.QMessageBox.Ok)
 
         # code that uses NCBI
@@ -1237,7 +1191,7 @@ class CMainWindow(QtWidgets.QMainWindow):
             # make sure that the retmax value is not too large
             if ret_max > 100:
                 QtWidgets.QMessageBox.question(self, "Error",
-                                           "Return Max number is too high, please set it to something below 100.",
+                                           "Return Max number is too high, please set it to something below 100",
                                            QtWidgets.QMessageBox.Ok)
                 return
 
@@ -1253,7 +1207,6 @@ class CMainWindow(QtWidgets.QMainWindow):
             else:
                 database_type = "GenBank"
 
-<<<<<<< HEAD
             # actually search, if nothing is returned, break out
             self.link_list, self.organismDict = self.ncbi_searcher.getDataBaseURL(self.Search_Input.displayText(), database_type, ret_max)
             if len(self.link_list) == 0 and len(self.organismDict) == 0:
@@ -1264,39 +1217,8 @@ class CMainWindow(QtWidgets.QMainWindow):
             for item in self.organismDict:
                 self.Annotations_Organism.addItem(item)
            # print("Done searching NCBI")
-=======
-            ##fills in the nbci dropdown when the gbff option is chosen
-            if(self.gbff_button.isChecked()):
-                self.organismData = self.ncbi_searcher.getNcbiAnnotation(self.Search_Input.displayText(), database_type, ret_max)
-                print("gbff button pressed")
-                print(self.organismData)
-                if self.organismData == -1:
-                    QtWidgets.QMessageBox.question(self, "Error", "Search yielded 0 results. Please try again.",
-                                                QtWidgets.QMessageBox.Ok)
-                    return
->>>>>>> 9eb6904fd009a348de5b293d44ce7554701ed403
 
-                for item in self.organismData:
-                    org_item = item['Organism'] + ' ' + item['AssemblyAccession']
-                    self.Annotations_Organism.addItem(org_item)
 
-                print("organism Data is: ", self.organismData)
-            ###fills in drop down for every other option
-            else:
-                # actually search, if nothing is returned, break out
-                self.link_list, self.organismDict = self.ncbi_searcher.getDataBaseURL(self.Search_Input.displayText(), database_type, ret_max)
-
-                if len(self.link_list) == 0 and len(self.organismDict) == 0:
-                    QtWidgets.QMessageBox.question(self, "Error", "Search yielded 0 results. Please try again.",
-                                                QtWidgets.QMessageBox.Ok)
-                    return
-                
-                # add each item found into the dropdown menu
-                for item in self.organismDict:
-                    print(item)
-                    self.Annotations_Organism.addItem(item)
-            
-            print("Done searching NCBI")
 
     def make_dictonary(self):
         url = "https://www.genome.jp/dbget-bin/get_linkdb?-t+genes+gn:"+self.TNumbers[self.Annotations_Organism.currentText()]
@@ -1344,7 +1266,7 @@ class CMainWindow(QtWidgets.QMainWindow):
 
     # This method is for testing the execution of a button call to make sure the button is linked properly
     def testexe(self):
-        choice = QtWidgets.QMessageBox.question(self, "Extract!", "Are you sure you want to quit?",
+        choice = QtWidgets.QMessageBox.question(self, "Extract!", "Are you sure you want to Quit?",
                                             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         if choice == QtWidgets.QMessageBox.Yes:
             #print(self.orgChoice.currentText())
@@ -1419,15 +1341,11 @@ class CMainWindow(QtWidgets.QMainWindow):
     #Function launches the multitargeting window and closing the current one
     def changeto_multitargeting(self):
         os.chdir(os.getcwd())
-        GlobalSettings.MTWin.mwfg.moveCenter(GlobalSettings.MTWin.cp) ##Center window
-        GlobalSettings.MTWin.move(GlobalSettings.MTWin.mwfg.topLeft()) ##Center window
         GlobalSettings.MTWin.show()
         GlobalSettings.mainWindow.hide()
 
     def changeto_population_Analysis(self):
         GlobalSettings.pop_Analysis.launch(GlobalSettings.CSPR_DB)
-        GlobalSettings.pop_Analysis.mwfg.moveCenter(GlobalSettings.pop_Analysis.cp) ##Center window
-        GlobalSettings.pop_Analysis.move(GlobalSettings.pop_Analysis.mwfg.topLeft()) ##Center window
         GlobalSettings.pop_Analysis.show()
         GlobalSettings.mainWindow.hide()
 
@@ -1471,10 +1389,6 @@ class CMainWindow(QtWidgets.QMainWindow):
             if item != self.Results.endonucleaseBox.currentText():
                 self.Results.endonucleaseBox.addItem(item)
 
-                
-
-        self.Results.mwfg.moveCenter(self.Results.cp) ##Center window
-        self.Results.move(self.Results.mwfg.topLeft()) ##Center window
         self.Results.show()
 
     # this function calls the closingWindow class.
@@ -1515,8 +1429,8 @@ class StartupWindow(QtWidgets.QDialog):
         self.setWindowModality(2)  # sets the modality of the window to Application Modal
         #self.make_window = annotations_Window()
         #---Button Modifications---#
-        self.setWindowIcon(QtGui.QIcon("cas9image.png"))
-        pixmap = QtGui.QPixmap('CASPER-logo.jpg')
+        self.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "cas9image.png")))
+        pixmap = QtGui.QPixmap(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'mainart.jpg'))
         self.labelforart.setPixmap(pixmap)
         self.pushButton_2.setDefault(True)
         # Check to see the operating system you are on and change this in Global Settings:
@@ -1530,8 +1444,6 @@ class StartupWindow(QtWidgets.QDialog):
         self.pushButton_2.clicked.connect(self.show_window)
         self.pushButton.clicked.connect(self.errormsgmulti)
         self.show()
-        
-
 
     ####---FUNCTIONS TO RUN EACH BUTTON---####
     def changeDir(self):
@@ -1552,7 +1464,7 @@ class StartupWindow(QtWidgets.QDialog):
             self.gdirectory = str(self.lineEdit.text())
             #print(self.gdirectory)
             if "Please select a directory that contains .cspr files" in self.gdirectory:
-                QtWidgets.QMessageBox.question(self, "Must select directory", "You must select your directory.",
+                QtWidgets.QMessageBox.question(self, "Must select directory", "You must select your directory",
                                                QtWidgets.QMessageBox.Ok)
 
             elif (os.path.isdir(self.gdirectory)):
@@ -1616,22 +1528,20 @@ class StartupWindow(QtWidgets.QDialog):
 
         self.gdirectory = str(self.lineEdit.text())
         #print(self.gdirectory)
-        if "Please select a directory that contains .cspr files" in self.gdirectory:
-            QtWidgets.QMessageBox.question(self, "Must select directory", "You must select your directory.",
+        if "Please select a directory that contains .capr files" in self.gdirectory:
+            QtWidgets.QMessageBox.question(self, "Must select directory", "You must select your directory",
                                                                                       QtWidgets.QMessageBox.Ok)
         elif(os.path.isdir(self.gdirectory)):
 
             os.chdir(self.gdirectory)
             found = GlobalSettings.mainWindow.getData()
             if found==False:
-                QtWidgets.QMessageBox.question(self, "No .cspr files", "Please select a directory that contains cspr files.",
+                QtWidgets.QMessageBox.question(self, "No Cspr files", "Please select a directory that contains cspr files.",
                                                QtWidgets.QMessageBox.Ok)
                 return
             GlobalSettings.filedir = self.gdirectory
             self.re_write_dir()
             GlobalSettings.CASPER_FOLDER_LOCATION = self.info_path
-            GlobalSettings.mainWindow.mwfg.moveCenter(GlobalSettings.mainWindow.cp) ##Center window
-            GlobalSettings.mainWindow.move(GlobalSettings.mainWindow.mwfg.topLeft()) ##Center window
             GlobalSettings.mainWindow.show()
             #Tanner - still setup data for MT
             GlobalSettings.MTWin.launch(self.gdirectory)
