@@ -1,7 +1,8 @@
 import GlobalSettings
 from PyQt5 import QtWidgets, uic, QtGui, QtCore, Qt
 from NCBI_API import Assembly, GBFF_Parse
-import os
+import os, sys
+
 
 ##############################################
 # Class-Name: NCBI_Search_File
@@ -11,10 +12,10 @@ class NCBI_Search_File(QtWidgets.QDialog):
     def __init__(self):
         # Qt init stuff
         super(NCBI_Search_File, self).__init__()
-        uic.loadUi(GlobalSettings.appdir + "NCBI_File_Search.ui", self)
+        uic.loadUi(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "NCBI_File_Search.ui"), self)
         self.setWindowTitle("Search NCBI for a File")
         self.searchProgressBar.setValue(0)
-        self.setWindowIcon(Qt.QIcon(GlobalSettings.appdir + "cas9image.png"))
+        self.setWindowIcon(Qt.QIcon(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "cas9image.png")))
 
         # selection table stuff
         self.selectionTableWidget.setColumnCount(1)  # hardcoded because there will always be 1 columns
@@ -207,6 +208,9 @@ class NCBI_Search_File(QtWidgets.QDialog):
         for i in range(len(self.compressedFilePaths)):
             self.decompressedFilePaths.append(self.ncbi_searcher.decompress_file(self.compressedFilePaths[i]))
 
+        # Preload the first file into the selected file window
+        GlobalSettings.mainWindow.newGenome.s_file.append(self.ncbi_searcher.decompress_file(self.compressedFilePaths[0]))
+
         # go through and delete the compressed files
         file_names = [f for f in os.listdir(GlobalSettings.CSPR_DB) if os.path.isfile(os.path.join(GlobalSettings.CSPR_DB, f))]
         for file in file_names:
@@ -215,5 +219,6 @@ class NCBI_Search_File(QtWidgets.QDialog):
                 os.remove(file)
 
         GlobalSettings.pop_Analysis.get_data()
+
 
         self.cancelFunction()
