@@ -2,14 +2,13 @@ import sys
 import os, platform
 import io
 from PyQt5 import QtWidgets, Qt, QtGui, QtCore, uic
-from APIs import Kegg
+from APIs import Kegg, SeqFromFasta
 from bioservices import KEGG
 from CoTargeting import CoTargeting
 from closingWin import closingWindow
 from Results import Results, geneViewerSettings
 from NewGenome import NewGenome, NCBI_Search_File
 from NewEndonuclease import NewEndonuclease
-# from kishanAnnotation import createGraph
 import gzip
 import webbrowser
 import requests
@@ -24,6 +23,11 @@ from Algorithms import SeqTranslate
 from CSPRparser import CSPRparser
 import populationAnalysis
 import platform
+from genomeBrowser import createGraph
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtCore import QDir, QUrl
+from Bio import Entrez
+
 
 # =========================================================================================
 # CLASS NAME: AnnotationsWindow
@@ -139,7 +143,7 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         else:  # show all not checked
             if (len(mainWindow.checkBoxes) > 15):  # check the size, throw an error if it is too large
                 error = QtWidgets.QMessageBox.question(self, "Large File Found",
-                                                       "This annotation file and search parameter yieled many matches and could cause a slow down.\n\n"
+                                                       "This Annotation file and search parameter yieled many matches and could cause a slow down.\n\n"
                                                        "Do you wish to continue?",
                                                        QtWidgets.QMessageBox.Yes |
                                                        QtWidgets.QMessageBox.No,
@@ -351,6 +355,8 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.cspr_selector = cspr_chromosome_selection()
         self.genLib = genLibrary()
         self.myClosingWindow = closingWindow()
+        self.link_list = list()  # the list of the downloadable links from the NCBI search
+        self.organismDict = dict()  # the dictionary for the links to download. Key is the description of the organism, value is the ID that can be found in link_list
 
 
     def endo_Changed(self):
@@ -398,7 +404,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         inputstring = str(self.geneEntryField.toPlainText())
         if (inputstring.startswith("Example Inputs:") or inputstring == ""):
             QtWidgets.QMessageBox.question(self, "Error",
-                                           "No gene has been entered. Please enter a gene.",
+                                           "No Gene has been entered. Please enter a gene.",
                                            QtWidgets.QMessageBox.Ok)
         else:
             # standardize the input
@@ -939,7 +945,6 @@ class CMainWindow(QtWidgets.QMainWindow):
 
 
     def launch_newGenomeBrowser(self):
-        print("creating graph")
         createGraph(self)
 
 
