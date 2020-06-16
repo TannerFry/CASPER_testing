@@ -66,6 +66,9 @@ class Multitargeting(QtWidgets.QMainWindow):
         self.graphicsView_2.setScene(self.scene2)
         self.graphicsView.viewport().installEventFilter(self)
 
+        self.mwfg = self.frameGeometry()  ##Center window
+        self.cp = QtWidgets.QDesktopWidget().availableGeometry().center()  ##Center window
+
 
     def eventFilter(self, source, event):
         if (event.type() == QtCore.QEvent.MouseMove and source is self.graphicsView.viewport()):

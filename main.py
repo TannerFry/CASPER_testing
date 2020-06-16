@@ -2,13 +2,14 @@ import sys
 import os, platform
 import io
 from PyQt5 import QtWidgets, Qt, QtGui, QtCore, uic
-from APIs import Kegg, SeqFromFasta
+from APIs import Kegg
 from bioservices import KEGG
 from CoTargeting import CoTargeting
 from closingWin import closingWindow
 from Results import Results, geneViewerSettings
 from NewGenome import NewGenome, NCBI_Search_File
 from NewEndonuclease import NewEndonuclease
+# from kishanAnnotation import createGraph
 import gzip
 import webbrowser
 import requests
@@ -23,11 +24,6 @@ from Algorithms import SeqTranslate
 from CSPRparser import CSPRparser
 import populationAnalysis
 import platform
-from genomeBrowser import createGraph
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import QDir, QUrl
-from Bio import Entrez
-
 
 # =========================================================================================
 # CLASS NAME: AnnotationsWindow
@@ -46,16 +42,21 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         self.select_all_checkbox.stateChanged.connect(self.select_all_genes)
         self.mainWindow = ""
         self.type = ""
-
+        self.mwfg = self.frameGeometry()  ##Center window
+        self.cp = QtWidgets.QDesktopWidget().availableGeometry().center()  ##Center window
 
     def submit(self):
         if self.type == "kegg":
             self.mainWindow.collect_table_data()
             self.hide()
+            self.mainWindow.mwfg.moveCenter(self.mainWindow.cp)  ##Center window
+            self.mainWindow.move(self.mainWindow.mwfg.topLeft())  ##Center window
             self.mainWindow.show()
         elif self.type == "nonkegg":
             self.mainWindow.collect_table_data_nonkegg()
             self.hide()
+            self.mainWindow.mwfg.moveCenter(self.mainWindow.cp)  ##Center window
+            self.mainWindow.move(self.mainWindow.mwfg.topLeft())  ##Center window
             self.mainWindow.show()
 
 
@@ -64,6 +65,8 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         self.mainWindow.checkBoxes.clear()
         self.mainWindow.searches.clear()
         self.tableWidget.setColumnCount(0)
+        self.mainWindow.mwfg.moveCenter(self.mainWindow.cp)  ##Center window
+        self.mainWindow.move(self.mainWindow.mwfg.topLeft())  ##Center window
         self.mainWindow.show()
         self.mainWindow.progressBar.setValue(0)
         self.hide()
@@ -139,11 +142,13 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         # if show all is checked, show the window so the user can select the genes they want
         if mainWindow.Show_All_Results.isChecked():
             mainWindow.hide()
+            self.mwfg.moveCenter(self.cp)  ##Center window
+            self.move(self.mwfg.topLeft())  ##Center window
             self.show()
         else:  # show all not checked
             if (len(mainWindow.checkBoxes) > 15):  # check the size, throw an error if it is too large
                 error = QtWidgets.QMessageBox.question(self, "Large File Found",
-                                                       "This Annotation file and search parameter yieled many matches and could cause a slow down.\n\n"
+                                                       "This annotation file and search parameter yieled many matches and could cause a slow down.\n\n"
                                                        "Do you wish to continue?",
                                                        QtWidgets.QMessageBox.Yes |
                                                        QtWidgets.QMessageBox.No,
@@ -215,6 +220,8 @@ class AnnotationsWindow(QtWidgets.QMainWindow):
         self.mainWindow.progressBar.setValue(50)
         if mainWindow.Show_All_Results.isChecked():
             mainWindow.hide()
+            self.mwfg.moveCenter(self.cp)  ##Center window
+            self.move(self.mwfg.topLeft())  ##Center window
             self.show()
         else:  # Show all not checked
             if (len(mainWindow.checkBoxes) > 15):  # check the size, throw an error if it is too large
@@ -355,8 +362,9 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.cspr_selector = cspr_chromosome_selection()
         self.genLib = genLibrary()
         self.myClosingWindow = closingWindow()
-        self.link_list = list()  # the list of the downloadable links from the NCBI search
-        self.organismDict = dict()  # the dictionary for the links to download. Key is the description of the organism, value is the ID that can be found in link_list
+
+        self.mwfg = self.frameGeometry()  ##Center window
+        self.cp = QtWidgets.QDesktopWidget().availableGeometry().center()  ##Center window
 
 
     def endo_Changed(self):
@@ -404,7 +412,7 @@ class CMainWindow(QtWidgets.QMainWindow):
         inputstring = str(self.geneEntryField.toPlainText())
         if (inputstring.startswith("Example Inputs:") or inputstring == ""):
             QtWidgets.QMessageBox.question(self, "Error",
-                                           "No Gene has been entered. Please enter a gene.",
+                                           "No gene has been entered. Please enter a gene.",
                                            QtWidgets.QMessageBox.Ok)
         else:
             # standardize the input
@@ -937,6 +945,8 @@ class CMainWindow(QtWidgets.QMainWindow):
 
     def launch_newGenome(self):
         self.hide()
+        self.newGenome.mwfg.moveCenter(self.newGenome.cp)  ##Center window
+        self.newGenome.move(self.mwfg.topLeft())  ##Center window
         self.newGenome.show()
 
 
@@ -945,6 +955,7 @@ class CMainWindow(QtWidgets.QMainWindow):
 
 
     def launch_newGenomeBrowser(self):
+        print("creating graph")
         createGraph(self)
 
 
@@ -1429,12 +1440,16 @@ class CMainWindow(QtWidgets.QMainWindow):
     # Function launches the multitargeting window and closing the current one
     def changeto_multitargeting(self):
         os.chdir(os.getcwd())
+        GlobalSettings.MTWin.mwfg.moveCenter(GlobalSettings.MTWin.cp)  ##Center window
+        GlobalSettings.MTWin.move(GlobalSettings.MTWin.mwfg.topLeft())  ##Center window
         GlobalSettings.MTWin.show()
         GlobalSettings.mainWindow.hide()
 
 
     def changeto_population_Analysis(self):
         GlobalSettings.pop_Analysis.launch(GlobalSettings.CSPR_DB)
+        GlobalSettings.pop_Analysis.mwfg.moveCenter(GlobalSettings.pop_Analysis.cp)  ##Center window
+        GlobalSettings.pop_Analysis.move(GlobalSettings.pop_Analysis.mwfg.topLeft())  ##Center window
         GlobalSettings.pop_Analysis.show()
         GlobalSettings.mainWindow.hide()
 
@@ -1485,6 +1500,8 @@ class CMainWindow(QtWidgets.QMainWindow):
             if item != self.Results.endonucleaseBox.currentText():
                 self.Results.endonucleaseBox.addItem(item)
 
+        self.Results.mwfg.moveCenter(self.Results.cp)  ##Center window
+        self.Results.move(self.Results.mwfg.topLeft())  ##Center window
         self.Results.show()
 
 

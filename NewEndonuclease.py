@@ -2,7 +2,6 @@ import sys, os
 from PyQt5 import QtWidgets, uic, QtGui, QtCore, Qt
 from bioservices import KEGG
 import GlobalSettings
-
 class NewEndonuclease(QtWidgets.QDialog):
 
     def __init__(self):

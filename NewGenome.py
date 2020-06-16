@@ -93,6 +93,9 @@ class NewGenome(QtWidgets.QMainWindow):
         self.job_Table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.fin_index=0
 
+        self.mwfg = self.frameGeometry()  ##Center window
+        self.cp = QtWidgets.QDesktopWidget().availableGeometry().center()  ##Center window
+
     ####---FUNCTIONS TO RUN EACH BUTTON---####
     def remove_from_queue(self):
         if len(self.JobsQueue) != 0:
@@ -122,7 +125,7 @@ class NewGenome(QtWidgets.QMainWindow):
                 return
             else:
                 self.file = myFile[0]
-                self.s_file.append(myFile[0])
+                self.s_file.setText(str(myFile[0]))
         """cdir = self.lineEdit.text()
         os.chdir(mydir)
         self.gdirectory = mydir
@@ -389,19 +392,19 @@ class NewGenome(QtWidgets.QMainWindow):
 
         else:
             self.process.kill()
-            self.JobsQueue = []
-            self.JobsQueueBox.clear()
+            self.job_Table.clearContents()
+            self.job_Table.setRowCount(0)
             self.lineEdit_1.clear()
             self.lineEdit_2.clear()
             self.lineEdit_3.clear()
             self.keggSuggested.setRowCount(0)
             self.output_browser.clear()
-            self.JobInProgress.clear()
-            self.CompletedJobs.clear()
-            self.s_file.clear()
+            self.s_file.setText("Name of File")
             self.progressBar.setValue(0)
             self.first = False
             GlobalSettings.CASPER_FOLDER_LOCATION = self.info_path
+            GlobalSettings.mainWindow.mwfg.moveCenter(GlobalSettings.mainWindow.cp)  ##Center window
+            GlobalSettings.mainWindow.move(GlobalSettings.mainWindow.mwfg.topLeft())  ##Center window
             GlobalSettings.mainWindow.show()
             if GlobalSettings.mainWindow.orgChoice.currentText() != '':
                 GlobalSettings.mainWindow.orgChoice.currentIndexChanged.disconnect()
@@ -436,7 +439,7 @@ class NewGenome(QtWidgets.QMainWindow):
 
         else:
             self.process.kill()
-            self.JobsQueue = []
+            self.job_Table.clearContents()
             self.lineEdit_1.clear()
             self.lineEdit_2.clear()
             self.lineEdit_3.clear()
@@ -446,6 +449,8 @@ class NewGenome(QtWidgets.QMainWindow):
             self.progressBar.setValue(0)
             self.first = False
             GlobalSettings.CASPER_FOLDER_LOCATION = self.info_path
+            GlobalSettings.mainWindow.mwfg.moveCenter(GlobalSettings.mainWindow.cp)  ##Center window
+            GlobalSettings.mainWindow.move(GlobalSettings.mainWindow.mwfg.topLeft())  ##Center window
             GlobalSettings.mainWindow.show()
             if GlobalSettings.mainWindow.orgChoice.currentText() != '':
                 GlobalSettings.mainWindow.orgChoice.currentIndexChanged.disconnect()
