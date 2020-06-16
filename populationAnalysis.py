@@ -4,20 +4,26 @@ import os
 from CSPRparser import CSPRparser
 import Algorithms
 from functools import partial
+from mpl_toolkits.mplot3d import axes3d
 import numpy as np
-from PyQt5.QtWidgets import *
 from matplotlib_venn import venn3_unweighted
+import matplotlib.pyplot as plt
+import itertools
+from PyQt5.QtWidgets import *
+from matplotlib.backends.backend_qt5agg import FigureCanvas
+from matplotlib_venn import venn3_unweighted
+import matplotlib.pyplot as plt
 import show_nams_ui
 import show_names2_ui
 import sys
-import gzip
-import sqlite3
+from statistics import mode
+
 
 class Pop_Analysis(QtWidgets.QMainWindow):
     def __init__(self):
         super(Pop_Analysis, self).__init__()
-        uic.loadUi(GlobalSettings.appdir + 'populationanalysis.ui', self)
-        self.setWindowIcon(QtGui.QIcon(GlobalSettings.appdir + "cas9image.png"))
+        uic.loadUi(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'populationanalysis.ui'), self)
+        self.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "cas9image.png")))
         self.goBackButton.clicked.connect(self.go_back)
         self.analyze_button.clicked.connect(self.pre_analyze)
         self.clear_Button.clicked.connect(self.clear)
@@ -39,6 +45,9 @@ class Pop_Analysis(QtWidgets.QMainWindow):
         self.show_names2.clicked.connect(self.show_names_func2)
         self.name_form = show_nams_ui.show_names_table()
         self.name_form2 = show_names2_ui.show_names_table2()
+
+        self.mwfg = self.frameGeometry()
+        self.cp = QtWidgets.QDesktopWidget().availableGeometry().center()
 
 
         #organism table
@@ -91,10 +100,6 @@ class Pop_Analysis(QtWidgets.QMainWindow):
         self.switcher_table2 = [1, 1, 1, 1, 1, 1, 1, 1,
                                 1]  # for keeping track of where we are in the sorting clicking for each column
         self.switcher_loc_table = [1, 1, 1, 1, 1]
-
-        self.filename = 'bsupant_spCas9_repeats.db'
-
-
 
     def launch_ncbi_seacher(self):
         GlobalSettings.mainWindow.ncbi_search_dialog.searchProgressBar.setValue(0)
@@ -185,9 +190,6 @@ class Pop_Analysis(QtWidgets.QMainWindow):
 
         # this function builds the Select Organisms table
 
-
-
-
     def get_data(self):
         if self.directory == '':
             return
@@ -213,18 +215,17 @@ class Pop_Analysis(QtWidgets.QMainWindow):
             for file in onlyfiles:
                 if file.find('.fna') != -1 or file.find('.fasta') != -1:
                     # find the organism name
-                    f = gzip.open(file, 'r')
+                    f = open(file, 'r')
                     hold = f.readline()
                     f.close()
-                    hold = str(hold)
-                    hold = hold.strip("'b")
-                    hold = hold[:len(hold) - 4]
                     # get the organism name
                     spaceIndex = hold.find(' ') + 1
                     commaIndex = hold.find(',')
                     buf = hold[spaceIndex:commaIndex]
+
                     # store the name in the dict of fna_files, that keys the name with the file path
                     self.fna_files[buf] = file
+
                     # store the data in the table
                     tabWidget = QtWidgets.QTableWidgetItem(buf)
                     self.org_Table.setRowCount(index + 1)
@@ -235,12 +236,9 @@ class Pop_Analysis(QtWidgets.QMainWindow):
             index = 0
             for file in onlyfiles:
                 if file.find('.cspr') != -1:
-                    f = gzip.open(file, 'r')
+                    f = open(file, 'r')
                     hold = f.readline()
                     f.close()
-                    hold = str(hold)
-                    hold = hold.strip("'b")
-                    hold = hold[:len(hold) - 4]
                     # only show the files that are metagenomic
                     if '(meta)' in hold:
                         colonIndex = hold.find(':') + 1
@@ -258,13 +256,16 @@ class Pop_Analysis(QtWidgets.QMainWindow):
                 self.org_Table.setRowCount(0)
 
 #        self.org_Table.resizeColumnsToContents() ##Commenting this out allows the header to remain full sized
+
         self.fillEndo()
-
-
+        # self.changeEndos()
 
     # this function opens CASPERinfo and builds the dropdown menu of selectable endonucleases
     def fillEndo(self):
-        f = open(GlobalSettings.appdir + 'CASPERinfo')
+        if GlobalSettings.OPERATING_SYSTEM_ID == "Windows":
+            f = open(GlobalSettings.appdir + "\\CASPERinfo")
+        else:
+            f = open(GlobalSettings.appdir + '/CASPERinfo')
         while True:
             line = f.readline()
             if line.startswith('ENDONUCLEASES'):
@@ -289,8 +290,6 @@ class Pop_Analysis(QtWidgets.QMainWindow):
         self.endoBox.addItems(self.Endos.keys())
         # self.endoBox.currentIndexChanged.connect(self.changeEndos)
 
-
-
     # this function displays all of the organisms of which the user has that endo in their DB
     def changeEndos(self):
         endo_box = str(self.endoBox.currentText())
@@ -307,9 +306,6 @@ class Pop_Analysis(QtWidgets.QMainWindow):
                 self.org_Table.setItem(index, 0, name)
                 index += 1
         self.org_Table.resizeColumnsToContents()
-
-
-
 
     # this function calls the popParser function and fills all the tables
     def pre_analyze(self):
@@ -331,7 +327,7 @@ class Pop_Analysis(QtWidgets.QMainWindow):
             # call the parser and the call fill_data
             cspr_file_name = GlobalSettings.CSPR_DB + '/' + cspr_file_name
             self.total_org_number, self.ref_para_list = self.parser.popParser(cspr_file_name, endoChoice)
-            self.fill_data()
+            self.fill_data(endoChoice)
         # if the user is wanting to go with creating a new meta genomic cspr file
         else:
             selectedList = self.org_Table.selectedItems()
@@ -401,20 +397,10 @@ class Pop_Analysis(QtWidgets.QMainWindow):
 
         return tempSum / divideBy
 
-
-
-
     # this function fills the top-right table
-    def fill_data(self):
+    def fill_data(self, endoChoice):
         self.table2.setRowCount(0)
         index = 0
-        conn = sqlite3.connect(self.filename)
-        c = conn.cursor()
-        for seed in c.execute("select * from repeats"):
-            seed = list(seed)
-            print(seed)
-
-
         for seeds in self.parser.popData:
             self.table2.setRowCount(index + 1)
 
@@ -470,15 +456,9 @@ class Pop_Analysis(QtWidgets.QMainWindow):
 
             index += 1
         self.table2.resizeColumnsToContents()
-
-
-        # self.plot_repeats_vs_seeds(endoChoice)
-        # self.plot_3D_graph(endoChoice)
-        # self.plot_venn()
-
-
-
-
+        self.plot_repeats_vs_seeds(endoChoice)
+        self.plot_3D_graph(endoChoice)
+        self.plot_venn()
 
     def clear(self):
         self.table2.setRowCount(0)
@@ -650,24 +630,18 @@ class Pop_Analysis(QtWidgets.QMainWindow):
             # self.pop_analysis_venn_diagram.canvas.axes = venn3_unweighted(
             # subsets=('null', 'null', 'null', 'null', 'null', 'null', 'null'), set_labels=('Org. 1', 'Org. 2', 'Org. 3'))
 
-
-
-
-
-
     def show_names_func(self):
         # print(self.names)
         self.name_form.fill_table(self.names)
         self.name_form.show()
 
-
     def show_names_func2(self):
+        # print(self.names)
         if len(self.names_venn) >= 3:
             self.name_form2.fill_table(self.names_venn[0:3])
             self.name_form2.show()
         else:
             self.name_form2.name_table2.setRowCount(0)
-
 
     def order(self, data_par):
         data = dict(data_par)
@@ -683,18 +657,17 @@ class Pop_Analysis(QtWidgets.QMainWindow):
             del data[max]
         return data2
 
-
     def go_back(self):
         GlobalSettings.mainWindow.getData()
+        GlobalSettings.mainWindow.mwfg.moveCenter(GlobalSettings.mainWindow.cp)
+        GlobalSettings.mainWindow.move(GlobalSettings.mainWindow.mwfg.topLeft())
         GlobalSettings.mainWindow.show()
         self.hide()
-
 
     # this function calls the close window class. Allows the user to choose what files they want to keep/delete
     def closeEvent(self, event):
         GlobalSettings.mainWindow.closeFunction()
         event.accept()
-
 
     def table_sorting(self, logicalIndex):
         self.switcher[logicalIndex] *= -1
@@ -703,7 +676,6 @@ class Pop_Analysis(QtWidgets.QMainWindow):
         else:
             self.table2.sortItems(logicalIndex, QtCore.Qt.AscendingOrder)
 
-
     # sorting to table2: IE the table in top-right
     def table2_sorting(self, logicalIndex):
         self.switcher_table2[logicalIndex] *= -1
@@ -711,7 +683,6 @@ class Pop_Analysis(QtWidgets.QMainWindow):
             self.table2.sortItems(logicalIndex, QtCore.Qt.DescendingOrder)
         else:
             self.table2.sortItems(logicalIndex, QtCore.Qt.AscendingOrder)
-
 
     # sorting for location table: IE table in bottom right
     def loc_table_sorter(self, logicalIndex):
@@ -732,7 +703,7 @@ class fna_and_cspr_combiner(QtWidgets.QDialog):
     def __init__(self):
         # Qt init stuff
         super(fna_and_cspr_combiner, self).__init__()
-        uic.loadUi(GlobalSettings.appdir + "pop_analysis_fna_combiner.ui", self)
+        uic.loadUi(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "pop_analysis_fna_combiner.ui"), self)
         self.sequencer_prog_bar.setValue(0)
 
         # button connections
@@ -859,6 +830,7 @@ class fna_and_cspr_combiner(QtWidgets.QDialog):
             for lines in filter(None, line.split(r'\n')):
                 lines = lines.strip('\n')
                 lines = lines.strip('\\n')
+                print(lines)
                 if (lines == 'Finished reading in the genome file.'):
                     self.num_chromo_next = True
                 elif (self.num_chromo_next == True):
@@ -912,7 +884,7 @@ class fna_and_cspr_combiner(QtWidgets.QDialog):
         # get the output folder location
         output_location = GlobalSettings.CSPR_DB
         # get the path to CASPERinfo
-        path_to_info = GlobalSettings.appdir + 'CASPERinfo'
+        path_to_info = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'CASPERinfo')
         # make org name something that will make more sense, this is just for testing right now
         orgName = self.orgName_line_edit.text() + '  , (meta), ' + self.orgNum_lineEdit.text()
         # get the seed and RNA length, based on the endo choice
@@ -927,7 +899,7 @@ class fna_and_cspr_combiner(QtWidgets.QDialog):
         #------------------done getting the arguments------------------------------
 
         # get the program path
-        program = '"' + GlobalSettings.appdir + 'Casper_Seq_Finder' + '" '
+        program = '"' + os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'Casper_Seq_Finder') + '" '
 
         # compile all of the arguments into one line
         args = '"' + endo_choice + '" '
@@ -940,6 +912,8 @@ class fna_and_cspr_combiner(QtWidgets.QDialog):
         args = args + '"' + orgName + '" '
         args = args + gRNA_length + ' '
         args = args + seed_length + ' '
+        args = args + '"' + secondCode + '"'
+        print(args)
         # combine the program and arguments into 1
         program = program + args
 

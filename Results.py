@@ -24,7 +24,7 @@ class Results(QtWidgets.QMainWindow):
 
     def __init__(self, parent=None):
         super(Results, self).__init__(parent)
-        uic.loadUi(GlobalSettings.appdir + 'resultsWindow.ui', self)
+        uic.loadUi(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'resultsWindow.ui'), self)
 
         self.setWindowTitle('Results')
         self.geneViewer.setReadOnly(True)
@@ -100,6 +100,10 @@ class Results(QtWidgets.QMainWindow):
         self.seq_and_avg_list = []
         self.files_list = []
         self.seq_finder_cspr_file = ''
+
+        self.mwfg = self.frameGeometry() ##Center window
+        self.cp = QtWidgets.QDesktopWidget().availableGeometry().center() ##Center window
+
 
 
     # this function opens the export_to_csv window
@@ -548,7 +552,7 @@ class Results(QtWidgets.QMainWindow):
             if self.directory.find("/") != -1:
                 file = (self.directory+"/" + self.org + "_" + endo + ".cspr")
             else:
-                file = (self.directory + "\\" + self.org + "_" + endo + ".cspr")
+                file = (self.directory + "/" + self.org + "_" + endo + ".cspr")
 
             #create the parser, read the targets store it. then display the GeneData screen
             parser = CSPRparser(file)
@@ -774,7 +778,7 @@ class Results(QtWidgets.QMainWindow):
     #linked to when the user pushes tools->off target analysis
     def Off_Target_Analysis(self):
         #build temp file for offtarget to read from
-        f = open(GlobalSettings.appdir + 'OffTargetFolder' + '\\temp.txt','w+')
+        f = open(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'OffTargetFolder') + '/temp.txt','w+')
         self.OTA.clear()
         for row in range(self.targetTable.rowCount()):
             if(self.targetTable.cellWidget(row,6).isChecked()):
@@ -806,6 +810,7 @@ class Results(QtWidgets.QMainWindow):
         #setup filename based on output name given in OffTarget
         filename = self.off_tar_win.output_path
 
+
         # if the user hits submit without running thr program, do nothing
         if filename == '':
             return
@@ -818,7 +823,7 @@ class Results(QtWidgets.QMainWindow):
         self.off_tar_win.hide()
         filename = filename[:len(filename)-1]
         filename = filename[1:]
-        filename = filename.replace(r'\\', '\\')
+        filename = filename.replace(r'\\', '/')
         filename = filename.replace('"', '')
         self.files_list.append(filename)
         out_file = open(filename, "r")
@@ -833,6 +838,7 @@ class Results(QtWidgets.QMainWindow):
                 line = line.strip('\n')
                 if (line != ''):
                     values = line.split(":")
+                    seq = str(values[0])
                     row = self.rows_and_seq_list[self.comboBoxGene.currentIndex()][values[0]]
                     OT = QtWidgets.QTableWidgetItem()
                     OT.setData(QtCore.Qt.EditRole, values[1])
@@ -1003,9 +1009,9 @@ class geneViewerSettings(QtWidgets.QDialog):
     def __init__(self):
         # Qt init stuff
         super(geneViewerSettings, self).__init__()
-        uic.loadUi(GlobalSettings.appdir + "geneViewerSettings.ui", self)
+        uic.loadUi(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "geneViewerSettings.ui"), self)
         self.setWindowTitle("Change Gene Viewer Settings")
-        self.setWindowIcon(Qt.QIcon(GlobalSettings.appdir + "cas9image.png"))
+        self.setWindowIcon(Qt.QIcon(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "cas9image.png")))
 
         # button connections
         self.kegg_radio_button.clicked.connect(self.change_file_type)
@@ -1014,7 +1020,6 @@ class geneViewerSettings(QtWidgets.QDialog):
         self.browse_button.clicked.connect(self.browseForFile)
         self.cancel_button.clicked.connect(self.cancelFunction)
         self.submit_button.clicked.connect(self.submitFunction)
-        self.file=""
 
         # class variables
         self.file_type = ""
@@ -1047,8 +1052,7 @@ class geneViewerSettings(QtWidgets.QDialog):
         # open a window so that the user can select a file
         filed = QtWidgets.QFileDialog()
         myFile = QtWidgets.QFileDialog.getOpenFileName(filed, "Choose an Annotation File")
-        self.file = myFile[0]
-        print(self.file)
+
         # make sure they choose the correct type of file
         if self.file_type not in myFile[0]:
             QtWidgets.QMessageBox.question(self, "Wrong type of file selected",
@@ -1077,7 +1081,7 @@ class geneViewerSettings(QtWidgets.QDialog):
     # it will find all of the sequences for all of the genes in the comboGeneBox in the results window
     # It will go based on the lengths stored in the comboGeneBox dictionary
     def submitFunction(self):
-        if not self.kegg_radio_button.isChecked() and self.file == "":
+        if not self.kegg_radio_button.isChecked() and (self.file_name_edit.displayText() == "" or self.file_name_edit.displayText() == "Please choose a file!"):
             #print("No file chosen")
             return
 
@@ -1092,7 +1096,6 @@ class geneViewerSettings(QtWidgets.QDialog):
                 name = nameFull[len(nameFull) - 1]
                 # get kegg's ntsequence and store it
                 nt_sequence = k.get_nt_sequence(organism + ":" + name)
-                print(nt_sequence)
                 GlobalSettings.mainWindow.Results.geneNTDict[item] = nt_sequence
             if self.file_type == "fna":
                 sequence = self.fna_sequence_finder(GlobalSettings.mainWindow.Results.geneDict[item])
